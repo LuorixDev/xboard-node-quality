@@ -1,0 +1,41 @@
+{
+  "name": "节点状态 Plus 监测",
+  "code": "node_quality",
+  "version": "0.4.0",
+  "type": "feature",
+  "description": "前后台原页面内嵌 Plus 监测，复用现有服务器与节点，保留原节点状态",
+  "author": "Node Quality contributors",
+  "config": {},
+  "admin_menus": [
+    {
+      "id": "overview",
+      "title": "监测概览",
+      "path": "overview",
+      "icon": "dashboard"
+    },
+    {
+      "id": "machines",
+      "title": "探针接入",
+      "path": "machines",
+      "icon": "package"
+    },
+    {
+      "id": "bindings",
+      "title": "节点绑定",
+      "path": "bindings",
+      "icon": "file-text"
+    },
+    {
+      "id": "targets",
+      "title": "检测目标",
+      "path": "targets",
+      "icon": "bar-chart-3"
+    },
+    {
+      "id": "settings",
+      "title": "监测设置",
+      "path": "settings",
+      "icon": "settings"
+    }
+  ]
+}

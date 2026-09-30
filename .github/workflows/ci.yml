@@ -1,0 +1,63 @@
+name: CI
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+  php:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: cedar2025/Xboard
+          ref: 4f48e61a2cbc6db5338872b6bdb45ef954ec1256
+          path: .work/xboard
+          persist-credentials: false
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_sqlite, sqlite3, zlib
+          coverage: none
+          tools: composer
+      - run: php tests/store.php
+      - run: bash tests/quality.sh
+      - run: composer install --working-dir=.work/xboard --no-dev --no-scripts --ignore-platform-reqs --no-interaction --prefer-dist
+      - run: python3 scripts/runtime.py
+      - run: php tests/laravel.php
+        env:
+          XBOARD_PATH: ${{ github.workspace }}/.work/xboard
+  agent-and-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.1'
+          cache: false
+      - run: go test -race ./... && go vet ./...
+        working-directory: agent
+      - run: python3 scripts/build.py dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: node-quality-packages
+          path: dist/
+          retention-days: 14

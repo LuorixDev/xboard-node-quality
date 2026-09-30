@@ -1,0 +1,13 @@
+{
+  "version": "v1.7.3",
+  "assets": {
+    "amd64": {
+      "url": "https://github.com/nxtrace/NTrace-core/releases/download/v1.7.3/nexttrace-tiny_linux_amd64",
+      "sha256": "52b4a69aa2108332f53ca2e73ffdb2937cb6cf80a6f1730765fe2209ca720f7d"
+    },
+    "arm64": {
+      "url": "https://github.com/nxtrace/NTrace-core/releases/download/v1.7.3/nexttrace-tiny_linux_arm64",
+      "sha256": "10c8a06c9f516b737c82a2c7ce6571e3a1165bf420805b508f384af277f31147"
+    }
+  }
+}

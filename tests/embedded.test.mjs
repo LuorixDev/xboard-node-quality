@@ -1,0 +1,11 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {JSDOM} from 'jsdom';import {startAdminBridge} from '../plugin/NodeQuality/resources/assets/admin-bridge.js';
+const wait=()=>new Promise(r=>setTimeout(r,30));
+const data={inventory:[],machines:[],profiles:[],nodes:[],bindings:[],targets:[],tasks:[],route_targets:[],disabled_sources:[],capacity:{free_bytes:1e10}};
+test('embedded management preserves native sidebar/header and uses admin credentials',async()=>{
+ const d=new JSDOM('<div id="root"><aside>Native navigation</aside><main><div><div class="native-header">Native header</div><div class="flex-1" id="native-content"><h2>Plugin placeholder</h2></div></div></main></div>',{url:'https://panel.example/secure#/plugins/node_quality/overview',pretendToBeVisual:true});const w=d.window;w.AbortController=AbortController;w.HTMLDialogElement.prototype.close=function(){this.open=false};w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.localStorage.setItem('XBOARD_ACCESS_TOKEN',JSON.stringify({value:'admin-fixture',expire:Date.now()+100000}));let auth;
+ w.fetch=async(path,opts)=>path.endsWith('.css?v=0.4.0')?{ok:true,text:async()=>':root{color:red}'}:(auth=opts.headers.Authorization,{ok:true,json:async()=>({data})});
+ const bridge=await startAdminBridge(w);await wait();const host=w.document.querySelector('[data-nq-admin]');assert(host);assert(host.shadowRoot.textContent.includes('运行概览'));assert.equal(auth,'admin-fixture');assert.equal(w.document.querySelector('aside').textContent,'Native navigation');assert.equal(w.document.querySelector('.native-header').textContent,'Native header');assert.equal(w.document.querySelector('#native-content').style.display,'none');
+ await startAdminBridge(w);assert.equal(w.document.querySelectorAll('[data-nq-admin]').length,1);
+ w.history.pushState({},'', '#/plugins/node_quality/targets');w.document.querySelector('#native-content h2').textContent='检测目标';await wait();assert(host.shadowRoot.textContent.includes('预设网站'));
+ w.location.hash='/server/manage';await wait();assert(!w.document.querySelector('[data-nq-admin]'));assert.equal(w.document.querySelector('#native-content').style.display,'');bridge.stop();w.close();
+});
